@@ -32,7 +32,7 @@ public class Pedro {
         job.setReducerClass(Reducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
-        FileInputFormat.addInputPath(job, new Path(args[0])); //"src/main/resources/A"
+        FileInputFormat.addInputPath(job, new Path(args[0])); //"src/main/resources"
         FileOutputFormat.setOutputPath(job, new Path(args[1])); //result
         job.waitForCompletion(true);
     }
