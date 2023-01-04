@@ -25,7 +25,7 @@ public class Pedro {
 
     public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
         Configuration conf = new Configuration();
-        conf.set("size", "1000");
+        conf.set("size", args[2]);
         Job job = Job.getInstance(conf, "pedro");
         job.setJarByClass(Pedro.class);
         job.setMapperClass(Mapper.class);
