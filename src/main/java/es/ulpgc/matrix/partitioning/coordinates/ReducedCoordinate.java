@@ -1,6 +1,8 @@
-package es.ulpgc.matrix.partitioning;
+package es.ulpgc.matrix.partitioning.coordinates;
 
-public class ReducedCoordinate {
+import es.ulpgc.matrix.partitioning.Coordinate;
+
+public class ReducedCoordinate implements Coordinate {
 
     public final String matrix;
     public final int position;

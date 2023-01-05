@@ -1,40 +1,37 @@
 package es.ulpgc.matrix.partitioning;
 
+import es.ulpgc.matrix.partitioning.coordinates.ValueCoordinate;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 
 import java.io.IOException;
 
-public class Mapper extends org.apache.hadoop.mapreduce.Mapper<LongWritable, Text, Text, Text>{
-
-
-    private org.apache.hadoop.mapreduce.Mapper.Context context;
-
+public class Mapper extends org.apache.hadoop.mapreduce.Mapper<LongWritable, Text, Text, Text> {
 
     @Override
-    protected void map(LongWritable key, Text item, org.apache.hadoop.mapreduce.Mapper<LongWritable, Text, Text, Text>.Context context) throws IOException, InterruptedException {
+    protected void map(LongWritable key, Text item, Context context) throws IOException, InterruptedException {
         Configuration conf = context.getConfiguration();
-        int size = Integer.parseInt(conf.get("size"));
-        Coordinate coordinate = new Coordinate(item.toString().split(","));
-        Text outputKey = new Text();
-        Text outputValue = new Text();
-        if (coordinate.matrix.equals("A")) {
-            for (int i = 0; i < size; i++) {
-                outputKey.set(coordinate.x + "," + i);
+        ValueCoordinate coordinate = new ValueCoordinate(item.toString().split(","));
+        if (coordinate.matrix.equals("A")) addAvalueToMultiply(context, Integer.parseInt(conf.get("size")), coordinate);
+        else addBvalueToMultiply(context, Integer.parseInt(conf.get("size")), coordinate);
+    }
 
-                outputValue.set(coordinate.matrix + "," + coordinate.y
-                        + "," + coordinate.value);
+    private void addBvalueToMultiply(Context context, int size, ValueCoordinate coordinate) throws IOException, InterruptedException {
+        for (int row = 0; row < size; row++) {
+            context.write(
+                    new Text(row + "," + coordinate.y),
+                    new Text("B," + coordinate.x + "," + coordinate.value)
+            );
+        }
+    }
 
-                context.write(outputKey, outputValue);
-            }
-        } else {
-            for (int i = 0; i < size; i++) {
-                outputKey.set(i + "," + coordinate.y);
-                outputValue.set("B," + coordinate.x + ","
-                        + coordinate.value);
-                context.write(outputKey, outputValue);
-            }
+    private void addAvalueToMultiply(Context context, int size, ValueCoordinate coordinate) throws IOException, InterruptedException {
+        for (int col = 0; col < size; col++) {
+            context.write(
+                    new Text(coordinate.x + "," + col),
+                    new Text(coordinate.matrix + "," + coordinate.y + "," + coordinate.value)
+            );
         }
     }
 }
