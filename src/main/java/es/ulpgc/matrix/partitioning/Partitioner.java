@@ -6,22 +6,38 @@ import org.apache.hadoop.fs.Path;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Partitioner {
-    public Path partitionate(File pathToMatrixes, int numberOfSubmatrixes)  {
-        String allSubmatrixes = "";
-        List<List<String>> rawMatrixes = readMatrixes(pathToMatrixes);
-        int size = rawMatrixes.get(0).get(0).split(" ").length;
-        allSubmatrixes = getSubmatrixes("A", rawMatrixes.get(0), size, allSubmatrixes, createCurrentSubmatrixes(numberOfSubmatrixes), numberOfSubmatrixes);
-        allSubmatrixes = getSubmatrixes("B", rawMatrixes.get(1), size, allSubmatrixes, createCurrentSubmatrixes(numberOfSubmatrixes), numberOfSubmatrixes);
-        System.out.println(allSubmatrixes);
 
-        return createSubMatrixesFile(allSubmatrixes);
+    private int size;
+    private final List<String> allSubMatrixes = new ArrayList<>();
+
+    public Path partitionate(File pathToMatrixes, int numberOfSubMatrixes)  {
+        List<List<String>> rawMatrixes = readMatrixes(pathToMatrixes);
+        size = rawMatrixes.get(0).get(0).split(" ").length;
+        getSubMatrixes("A", rawMatrixes.get(0), createCurrentSubMatrixes(numberOfSubMatrixes), numberOfSubMatrixes);
+        getSubMatrixes("B", rawMatrixes.get(1), createCurrentSubMatrixes(numberOfSubMatrixes), numberOfSubMatrixes);
+        String allMapperItems = prepareToMultiply(numberOfSubMatrixes);
+        System.out.println(allMapperItems);
+        return createSubMatrixesFile(allMapperItems);
+    }
+
+    private String prepareToMultiply(int numberOfSubMatrixes) {
+        StringBuilder allMapperItems = new StringBuilder();
+        for (String subMatrixA : allSubMatrixes.subList(0, numberOfSubMatrixes*numberOfSubMatrixes)) {
+            for (String subMatrixB : allSubMatrixes.subList(numberOfSubMatrixes*numberOfSubMatrixes, allSubMatrixes.size())) {
+                if (shouldMultiply(subMatrixA, subMatrixB)) {
+                    allMapperItems.append(subMatrixA).append(" - ").append(subMatrixB).append("\n");
+                }
+            }
+        }
+        return allMapperItems.toString();
+    }
+
+    private static boolean shouldMultiply(String subMatrixA, String subMatrixB) {
+        return Objects.equals(subMatrixA.split(" ")[0], subMatrixB.split(" ")[0]) || Objects.equals(subMatrixA.split(" ")[1], subMatrixB.split(" ")[1]);
     }
 
     private Path createSubMatrixesFile(String allSubmatrixes) {
@@ -39,15 +55,17 @@ public class Partitioner {
         if (!Files.exists(path)) path.toFile().mkdirs();
     }
 
-    private String getSubmatrixes(String name,List<String> matrixARows, int size, String allSubmatrixes, List<List<String>> currentSubmatrixes, int numberOfSubmatrixes) {
-        for (String line : matrixARows) {
-            for (int i = 0; i < numberOfSubmatrixes; i++)
-                for (int j = 0; j < size/numberOfSubmatrixes; j++)
-                    currentSubmatrixes.get(i).add(line.split(" ")[j + i * numberOfSubmatrixes]);
-            if (areSubmatrixesFull(size/numberOfSubmatrixes, currentSubmatrixes))
-                allSubmatrixes = createNewSubmatrixes(currentSubmatrixes, allSubmatrixes, numberOfSubmatrixes, name);
+    private void getSubMatrixes(String name, List<String> matrixARows, List<List<String>> currentSubMatrixes, int numberOfSubMatrixes) {
+        int currentCol = 0;
+        for (String matrixARow : matrixARows) {
+            for (int i = 0; i < numberOfSubMatrixes; i++)
+                for (int j = 0; j < size / numberOfSubMatrixes; j++)
+                    currentSubMatrixes.get(i).add(matrixARow.split(" ")[j + i * numberOfSubMatrixes]);
+            if (areSubmatrixesFull(size / numberOfSubMatrixes, currentSubMatrixes)) {
+                createNewSubmatrixes(currentSubMatrixes, allSubMatrixes, numberOfSubMatrixes, name, currentCol);
+                currentCol++;
+            }
         }
-        return allSubmatrixes;
     }
 
     private static List<List<String>> readMatrixes(File path) {
@@ -65,19 +83,17 @@ public class Partitioner {
         return currentSubmatrixes.get(0).size() == submatrixesSize*submatrixesSize;
     }
 
-    private List<List<String>> createCurrentSubmatrixes(int numberOfSubmatrixes) {
+    private List<List<String>> createCurrentSubMatrixes(int numberOfSubmatrixes) {
         List<List<String>> currentSubmatrixes = new ArrayList<>(numberOfSubmatrixes);
         for (int i = 0; i < numberOfSubmatrixes; i++)
             currentSubmatrixes.add(new ArrayList<>());
         return currentSubmatrixes;
     }
 
-    private String createNewSubmatrixes(List<List<String>> currentSubmatrixes, String allSubmatrixes, int numberOfSubmatrixes, String name) {
-        StringBuilder allSubmatrixesBuilder = new StringBuilder(allSubmatrixes);
+    private void createNewSubmatrixes(List<List<String>> currentSubmatrixes, List<String> allSubmatrixes, int numberOfSubmatrixes, String name, int currentCol) {
         for (int i = 0; i < numberOfSubmatrixes; i++) {
-            allSubmatrixesBuilder.append(name).append(" ").append(String.join(" ", currentSubmatrixes.get(i))).append("\n");
+            allSubmatrixes.add(currentCol + " " + i + " " + name + " " + String.join(" ", currentSubmatrixes.get(i)));
             currentSubmatrixes.set(i, new ArrayList<>());
         }
-        return allSubmatrixesBuilder.toString();
     }
 }
