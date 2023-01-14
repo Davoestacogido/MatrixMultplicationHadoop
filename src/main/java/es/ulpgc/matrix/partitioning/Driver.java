@@ -1,5 +1,6 @@
 package es.ulpgc.matrix.partitioning;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
@@ -15,7 +16,7 @@ public class Driver {
 
     public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
 
-
+        FileUtils.deleteDirectory(new File("C:\\Users\\Usuario\\IdeaProjects\\MatrixMultplicationHadoop\\datamart"));
         Path subMatrixes = new Partitioner().partitionate(new File("C:\\Users\\Usuario\\IdeaProjects\\MatrixMultplicationHadoop\\src\\main\\resources"), 2);
 
         Configuration conf = new Configuration();
@@ -28,6 +29,7 @@ public class Driver {
         job.setOutputValueClass(Text.class);
         FileInputFormat.addInputPath(job, new Path("C:\\Users\\Usuario\\IdeaProjects\\MatrixMultplicationHadoop\\datamart"));
         FileOutputFormat.setOutputPath(job, new Path("C:\\Users\\Usuario\\IdeaProjects\\MatrixMultplicationHadoop\\src\\main\\result"));
-        job.waitForCompletion(true);
+        if (!job.waitForCompletion(true)) System.exit(1);
+
     }
 }

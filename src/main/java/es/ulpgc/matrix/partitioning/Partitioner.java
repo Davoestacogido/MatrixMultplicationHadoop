@@ -20,7 +20,6 @@ public class Partitioner {
         getSubMatrixes("A", rawMatrixes.get(0), createCurrentSubMatrixes(numberOfSubMatrixes), numberOfSubMatrixes);
         getSubMatrixes("B", rawMatrixes.get(1), createCurrentSubMatrixes(numberOfSubMatrixes), numberOfSubMatrixes);
         String allMapperItems = prepareToMultiply(numberOfSubMatrixes);
-        System.out.println(allMapperItems);
         return createSubMatrixesFile(allMapperItems);
     }
 
@@ -29,7 +28,7 @@ public class Partitioner {
         for (String subMatrixA : allSubMatrixes.subList(0, numberOfSubMatrixes*numberOfSubMatrixes)) {
             for (String subMatrixB : allSubMatrixes.subList(numberOfSubMatrixes*numberOfSubMatrixes, allSubMatrixes.size())) {
                 if (shouldMultiply(subMatrixA, subMatrixB)) {
-                    allMapperItems.append(subMatrixA).append(" - ").append(subMatrixB).append("\n");
+                    allMapperItems.append(subMatrixA).append("-").append(subMatrixB).append("\n");
                 }
             }
         }

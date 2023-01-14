@@ -1,4 +1,4 @@
-package es.ulpgc.matrix.partitioning.coordinates;
+package es.ulpgc.matrix.partitioning;
 
 public class SubMatrix {
 
@@ -16,6 +16,6 @@ public class SubMatrix {
         matrix = rawSubMatrix[2];
         for (int i = 0; i < size; i++)
             for (int j = 0; j < size; j++)
-                values[i][j] = Long.parseLong(rawSubMatrix[3 + i + j]);
+                values[j][i] = Long.parseLong(rawSubMatrix[3 + i + j*size]);
     }
 }
