@@ -16,7 +16,7 @@ public class Driver {
 
     public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
         FileUtils.deleteDirectory(new File(".\\datamart"));
-        new Partitioner().partitionate(new File(args[0]), 2);
+        new Partitioner().partitionate(new File(args[0]), Integer.parseInt(args[2]));
         Job job = Job.getInstance(new Configuration(), "Matrix Multiplication");
         job.setJarByClass(Driver.class);
         job.setMapperClass(MapperPartitioner.class);

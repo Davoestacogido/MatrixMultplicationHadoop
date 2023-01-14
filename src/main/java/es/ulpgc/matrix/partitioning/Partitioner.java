@@ -26,7 +26,7 @@ public class Partitioner {
         for (String subMatrixA : allSubMatrixes.subList(0, numberOfSubMatrixes*numberOfSubMatrixes)) {
             for (String subMatrixB : allSubMatrixes.subList(numberOfSubMatrixes*numberOfSubMatrixes, allSubMatrixes.size())) {
                 if (shouldMultiply(subMatrixA, subMatrixB)) {
-                    allMapperItems.append(subMatrixA).append("-").append(subMatrixB).append("\n");
+                    allMapperItems.append(subMatrixA).append(";").append(subMatrixB).append("\n");
                 }
             }
         }
