@@ -1,9 +1,6 @@
 package es.ulpgc.matrix.partitioning;
 
 
-
-import org.apache.hadoop.fs.Path;
-
 import java.io.*;
 import java.nio.file.Files;
 import java.util.*;
@@ -14,13 +11,14 @@ public class Partitioner {
     private int size;
     private final List<String> allSubMatrixes = new ArrayList<>();
 
-    public Path partitionate(File pathToMatrixes, int numberOfSubMatrixes)  {
+    public void partitionate(File pathToMatrixes, int numberOfSubMatrixes)  {
         List<List<String>> rawMatrixes = readMatrixes(pathToMatrixes);
         size = rawMatrixes.get(0).get(0).split(" ").length;
+        if (size % numberOfSubMatrixes != 0 ) throw new RuntimeException(numberOfSubMatrixes + " is not avaible number of submatrixes for a " + size + "x" + size + " matrixes.");
         getSubMatrixes("A", rawMatrixes.get(0), createCurrentSubMatrixes(numberOfSubMatrixes), numberOfSubMatrixes);
         getSubMatrixes("B", rawMatrixes.get(1), createCurrentSubMatrixes(numberOfSubMatrixes), numberOfSubMatrixes);
         String allMapperItems = prepareToMultiply(numberOfSubMatrixes);
-        return createSubMatrixesFile(allMapperItems);
+        createSubMatrixesFile(allMapperItems);
     }
 
     private String prepareToMultiply(int numberOfSubMatrixes) {
@@ -36,10 +34,10 @@ public class Partitioner {
     }
 
     private static boolean shouldMultiply(String subMatrixA, String subMatrixB) {
-        return Objects.equals(subMatrixA.split(" ")[0], subMatrixB.split(" ")[0]) || Objects.equals(subMatrixA.split(" ")[1], subMatrixB.split(" ")[1]);
+        return Objects.equals(subMatrixA.split(" ")[1], subMatrixB.split(" ")[0]);
     }
 
-    private Path createSubMatrixesFile(String allSubmatrixes) {
+    private void createSubMatrixesFile(String allSubmatrixes) {
         createDirectory(java.nio.file.Path.of("./datamart/"));
         String file =  "./datamart/" +  UUID.randomUUID();
         try(FileOutputStream fileOutputStream = new FileOutputStream(file)) {
@@ -47,7 +45,6 @@ public class Partitioner {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return new Path(file);
     }
 
     private void createDirectory(java.nio.file.Path path) {
@@ -59,7 +56,7 @@ public class Partitioner {
         for (String matrixARow : matrixARows) {
             for (int i = 0; i < numberOfSubMatrixes; i++)
                 for (int j = 0; j < size / numberOfSubMatrixes; j++)
-                    currentSubMatrixes.get(i).add(matrixARow.split(" ")[j + i * numberOfSubMatrixes]);
+                    currentSubMatrixes.get(i).add(matrixARow.split(" ")[j + i * (size / numberOfSubMatrixes)]);
             if (areSubmatrixesFull(size / numberOfSubMatrixes, currentSubMatrixes)) {
                 createNewSubmatrixes(currentSubMatrixes, allSubMatrixes, numberOfSubMatrixes, name, currentCol);
                 currentCol++;

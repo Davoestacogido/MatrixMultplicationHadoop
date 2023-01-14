@@ -17,11 +17,8 @@ public class Driver {
     public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
 
         FileUtils.deleteDirectory(new File("C:\\Users\\Usuario\\IdeaProjects\\MatrixMultplicationHadoop\\datamart"));
-        Path subMatrixes = new Partitioner().partitionate(new File("C:\\Users\\Usuario\\IdeaProjects\\MatrixMultplicationHadoop\\src\\main\\resources"), 2);
-
-        Configuration conf = new Configuration();
-        conf.set("size", 3 + "");
-        Job job = Job.getInstance(conf, "Matrix Multiplication");
+        new Partitioner().partitionate(new File("C:\\Users\\Usuario\\IdeaProjects\\MatrixMultplicationHadoop\\src\\main\\resources\\6x6"), 3);
+        Job job = Job.getInstance(new Configuration(), "Matrix Multiplication");
         job.setJarByClass(Driver.class);
         job.setMapperClass(MapperPartitioner.class);
         job.setReducerClass(ReducerPartitioner.class);
