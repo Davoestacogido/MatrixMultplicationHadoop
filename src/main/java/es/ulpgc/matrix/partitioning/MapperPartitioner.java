@@ -9,10 +9,11 @@ public class MapperPartitioner extends org.apache.hadoop.mapreduce.Mapper<LongWr
 
     @Override
     protected void map(LongWritable key, Text item, Context context) throws IOException, InterruptedException {
-        String[] subMatrixes = item.toString().split(";");
-        SubMatrix a = new SubMatrix(subMatrixes[0].split(" "));
-        SubMatrix b = new SubMatrix(subMatrixes[1].split(" "));
-        multiply(a,b, context);
+        multiply(
+                new SubMatrix(item.toString().split(";")[0].split(" ")),
+                new SubMatrix(item.toString().split(";")[1].split(" ")),
+                context
+        );
     }
 
     private void multiply(SubMatrix a, SubMatrix b, Context context) throws IOException, InterruptedException {

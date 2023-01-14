@@ -14,7 +14,7 @@ public class Partitioner {
     public void partitionate(File pathToMatrixes, int numberOfSubMatrixes)  {
         List<List<String>> rawMatrixes = readMatrixes(pathToMatrixes);
         size = rawMatrixes.get(0).get(0).split(" ").length;
-        if (size % numberOfSubMatrixes != 0 ) throw new RuntimeException(numberOfSubMatrixes + " is not avaible number of submatrixes for a " + size + "x" + size + " matrixes.");
+        if (size % numberOfSubMatrixes != 0 ) throw new RuntimeException(numberOfSubMatrixes + " is not an avaible number of submatrixes for a " + size + "x" + size + " matrixes.");
         getSubMatrixes("A", rawMatrixes.get(0), createCurrentSubMatrixes(numberOfSubMatrixes), numberOfSubMatrixes);
         getSubMatrixes("B", rawMatrixes.get(1), createCurrentSubMatrixes(numberOfSubMatrixes), numberOfSubMatrixes);
         String allMapperItems = prepareToMultiply(numberOfSubMatrixes);
@@ -23,13 +23,11 @@ public class Partitioner {
 
     private String prepareToMultiply(int numberOfSubMatrixes) {
         StringBuilder allMapperItems = new StringBuilder();
-        for (String subMatrixA : allSubMatrixes.subList(0, numberOfSubMatrixes*numberOfSubMatrixes)) {
+        for (String subMatrixA : allSubMatrixes.subList(0, numberOfSubMatrixes*numberOfSubMatrixes))
             for (String subMatrixB : allSubMatrixes.subList(numberOfSubMatrixes*numberOfSubMatrixes, allSubMatrixes.size())) {
-                if (shouldMultiply(subMatrixA, subMatrixB)) {
+                if (shouldMultiply(subMatrixA, subMatrixB))
                     allMapperItems.append(subMatrixA).append(";").append(subMatrixB).append("\n");
-                }
             }
-        }
         return allMapperItems.toString();
     }
 
