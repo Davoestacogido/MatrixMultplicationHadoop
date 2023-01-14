@@ -15,17 +15,16 @@ import java.io.IOException;
 public class Driver {
 
     public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
-
-        FileUtils.deleteDirectory(new File("C:\\Users\\Usuario\\IdeaProjects\\MatrixMultplicationHadoop\\datamart"));
-        new Partitioner().partitionate(new File("C:\\Users\\Usuario\\IdeaProjects\\MatrixMultplicationHadoop\\src\\main\\resources\\6x6"), 3);
+        FileUtils.deleteDirectory(new File(".\\datamart"));
+        new Partitioner().partitionate(new File(args[0]), 2);
         Job job = Job.getInstance(new Configuration(), "Matrix Multiplication");
         job.setJarByClass(Driver.class);
         job.setMapperClass(MapperPartitioner.class);
         job.setReducerClass(ReducerPartitioner.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
-        FileInputFormat.addInputPath(job, new Path("C:\\Users\\Usuario\\IdeaProjects\\MatrixMultplicationHadoop\\datamart"));
-        FileOutputFormat.setOutputPath(job, new Path("C:\\Users\\Usuario\\IdeaProjects\\MatrixMultplicationHadoop\\src\\main\\result"));
+        FileInputFormat.addInputPath(job, new Path(".\\datamart"));
+        FileOutputFormat.setOutputPath(job, new Path(args[1]));
         if (!job.waitForCompletion(true)) System.exit(1);
 
     }
